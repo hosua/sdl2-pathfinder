@@ -35,6 +35,11 @@ public:
 	 *
 	 */
 	void renderScenes();
+	
+	/** \brief Renders all scenes without presenting (useful for pathfinding animations).
+	 *
+	 */
+	void renderScenesWithoutPresent();
 
 private:
 	std::vector<std::unique_ptr<IScene>> _scenes;

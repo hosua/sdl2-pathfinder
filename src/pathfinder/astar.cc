@@ -86,6 +86,7 @@ std::vector<SDL_Point> PathFinder::a_star(World& world, const int& search_speed)
 	g_count++;
 
 	std::set<std::pair<int,int>> closed;
+	std::vector<SDL_Rect> search_markers;
 
 	AStarPriorityQueue pq;
 	pq.push(start_node);
@@ -97,20 +98,36 @@ std::vector<SDL_Point> PathFinder::a_star(World& world, const int& search_speed)
 		std::cout << node;
 		int x = node.x, y = node.y;
 		closed.insert(std::make_pair(x, y));
+		
+		SDL_Rect current_rect = { world.getRect().x + (x * BLOCK_W), 
+			world.getRect().y + (y * BLOCK_H), 
+			BLOCK_W, BLOCK_H 
+		};
+		search_markers.push_back(current_rect);
+		
+		App::getInstance()->renderScenesWithoutPresent();
+		const SDL_Color c = Color::GREEN;
+		SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 128);
+		for (const SDL_Rect& marker : search_markers) {
+			SDL_RenderFillRect(renderer, &marker);
+		}
+		App::getInstance()->drawPresent();
+		App::getInstance()->delayHighRes(search_delay);
+		
 		if (x == goal.x && y == goal.y){
 			// std::cout << "\nReconstructing the path...\n";
 			// crawl
-			SDL_Color c = Color::Light::GREEN;
-			SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 128);
+			SDL_Color c_finish = Color::Light::GREEN;
+			SDL_SetRenderDrawColor(renderer, c_finish.r, c_finish.g, c_finish.b, 128);
 			for (SearchState* crawl = node.parent.get(); crawl; crawl = crawl->parent.get()){
 				// std::cout << '(' << crawl->x << ',' << crawl->y << ")\n";
 				path.push_back({ crawl->x, crawl->y });
+				App::getInstance()->renderScenesWithoutPresent();
 				SDL_Rect rect = { world.getRect().x + crawl->x * BLOCK_W, crawl->y * BLOCK_H, BLOCK_W, BLOCK_H };
 				SDL_RenderFillRect(renderer, &rect);
+				App::getInstance()->drawPresent();
 
 				App::getInstance()->delayHighRes(search_delay);
-
-				SDL_RenderPresent(renderer);
 			}
 			std::reverse(path.begin(), path.end());
 			return path;
@@ -148,16 +165,6 @@ std::vector<SDL_Point> PathFinder::a_star(World& world, const int& search_speed)
 					// did not already exist in the open list, so insert it
 					pq.push(new_node);
 				}
-
-				const SDL_Color c = Color::GREEN;
-				SDL_Rect rect = { world.getRect().x + (nx * BLOCK_W), 
-					world.getRect().y + (ny * BLOCK_H), 
-					BLOCK_W, BLOCK_H 
-				};
-				SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 128);
-				SDL_RenderFillRect(renderer, &rect);
-				App::getInstance()->delayHighRes(search_delay);
-				SDL_RenderPresent(renderer);
 
 			}
 		}

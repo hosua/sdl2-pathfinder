@@ -40,9 +40,7 @@ std::vector<SDL_Point> PathFinder::bfs(World& world, const int& search_speed){
 	parent[make_pair(start.x, start.y)] = {-1,-1};
 
 	std::vector<SDL_Rect> search_markers;
-
-	world.renderClear();
-	world.render();
+	vis.insert(make_pair(start.x, start.y));
 
 	const SDL_Color c = Color::GREEN;
 	while (!q.empty()){
@@ -69,12 +67,13 @@ std::vector<SDL_Point> PathFinder::bfs(World& world, const int& search_speed){
 					path.push_back(node);
 					SDL_Point p = parent[crawl];
 					crawl.first = p.x, crawl.second = p.y;
+					App::getInstance()->renderScenesWithoutPresent();
 					rect = { world.getRect().x + p.x * BLOCK_W, p.y * BLOCK_H, BLOCK_W, BLOCK_H };
 					SDL_RenderFillRect(renderer, &rect);
+					App::getInstance()->drawPresent();
 
 					// add some delay to the path reconstructing animation
-					SDL_Delay(7); 
-					SDL_RenderPresent(renderer);
+					SDL_Delay(7);
 				}
 
 				// remove starter node in path (player is already on here)
@@ -84,11 +83,17 @@ std::vector<SDL_Point> PathFinder::bfs(World& world, const int& search_speed){
 				return path;
 			}
 
+			search_markers.push_back(rect);
+			vis.insert(make_pair(pos.x, pos.y));
+
+			App::getInstance()->renderScenesWithoutPresent();
 			SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 128);
-			SDL_RenderFillRect(renderer, &rect);
+			for (const SDL_Rect& marker : search_markers) {
+				SDL_RenderFillRect(renderer, &marker);
+			}
+			App::getInstance()->drawPresent();
 			// add some delay to the path search animation
 			App::getInstance()->delayHighRes(search_delay);
-			SDL_RenderPresent(renderer);
 
 			for (const SDL_Point& moves : s_moves){
 				SDL_Point n = {pos.x + moves.x, pos.y + moves.y};
@@ -98,7 +103,6 @@ std::vector<SDL_Point> PathFinder::bfs(World& world, const int& search_speed){
 						&& vis.find(pr) == vis.end()){
 					q.push(n);
 					parent[make_pair(n.x, n.y)] = pos;
-					vis.insert(make_pair(n.x, n.y)); // mark as visited
 				}
 			}
 

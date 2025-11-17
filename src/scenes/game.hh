@@ -24,6 +24,8 @@ namespace Scenes {
 			// gets and stores the path from player -> goal in _path.
 			bool getPath(std::function<std::vector<SDL_Point>(World& world, std::vector<SDL_Point> path)> helper); // return false if no path is found
 			void renderPath(); // renders _path (if one can be formed)
+			void renderSearchStates();
+			void renderRetrace();
 
 			// sets the entity type that the player will emplace when clicking on the world
 			void setEntityType(EntType entity_type){ _entity_type = entity_type; }
@@ -33,9 +35,17 @@ namespace Scenes {
 
 		
 		private:
-			std::vector<SDL_Point> _path;
-			EntType _entity_type = ENT_WALL; // the current type of entity to spawn/move when clicking
-			int _search_speed = 7; // the speed of the pathfinding search
+			// the points on the grid that have already been visited by the currently running algorithm
+			std::vector<SDL_Point> _search_states; 
+			// the path that is traced when the search finds the goal
+			std::vector<SDL_Point> _retrace; 
+			// the final path after it is retraced
+			std::vector<SDL_Point> _path; 
+
+			// the current type of entity to spawn/move when clicking
+			EntType _entity_type = ENT_WALL; 
+			// the speed of the pathfinding search
+			int _search_speed = 7; 
 	};
 }
 

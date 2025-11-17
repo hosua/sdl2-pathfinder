@@ -214,7 +214,16 @@ namespace Scenes {
 			};
 			SDL_RenderFillRect(renderer, &rect);
 		}
+	}			
+
+	void Game::renderSearchStates(){
+
 	}
+
+	void Game::renderRetrace(){
+
+	}
+
 
 	void Game::restart(){
 		_path.clear();
