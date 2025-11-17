@@ -1,3 +1,0 @@
-/home/hoswoo/Desktop/git/Github/sdl2-pathfinder/build_emscripten/CMakeFiles/grid-game.dir
-/home/hoswoo/Desktop/git/Github/sdl2-pathfinder/build_emscripten/CMakeFiles/edit_cache.dir
-/home/hoswoo/Desktop/git/Github/sdl2-pathfinder/build_emscripten/CMakeFiles/rebuild_cache.dir
