@@ -91,6 +91,10 @@ std::vector<SDL_Point> PathFinder::a_star(World& world, const int& search_speed)
 	AStarPriorityQueue pq;
 	pq.push(start_node);
 
+	int render_counter = 0;
+	const int RENDER_INTERVAL = 1; // Render every node
+	const SDL_Color c = Color::GREEN;
+
 	while (!pq.empty()){
 		SearchState node = pq.top();	
 		pq.pop();
@@ -105,26 +109,34 @@ std::vector<SDL_Point> PathFinder::a_star(World& world, const int& search_speed)
 		};
 		search_markers.push_back(current_rect);
 		
-		App::getInstance()->renderScenesWithoutPresent();
-		const SDL_Color c = Color::GREEN;
-		SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 128);
-		for (const SDL_Rect& marker : search_markers) {
-			SDL_RenderFillRect(renderer, &marker);
+		render_counter++;
+		if (render_counter >= RENDER_INTERVAL){
+			App::getInstance()->renderScenesWithoutPresent();
+			SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 128);
+			for (const SDL_Rect& marker : search_markers) {
+				SDL_RenderFillRect(renderer, &marker);
+			}
+			App::getInstance()->drawPresent();
+			App::getInstance()->delayHighRes(search_delay);
+			render_counter = 0;
 		}
-		App::getInstance()->drawPresent();
-		App::getInstance()->delayHighRes(search_delay);
 		
 		if (x == goal.x && y == goal.y){
 			// std::cout << "\nReconstructing the path...\n";
 			// crawl
 			SDL_Color c_finish = Color::Light::GREEN;
-			SDL_SetRenderDrawColor(renderer, c_finish.r, c_finish.g, c_finish.b, 128);
+			std::vector<SDL_Rect> path_rects;
 			for (SearchState* crawl = node.parent.get(); crawl; crawl = crawl->parent.get()){
 				// std::cout << '(' << crawl->x << ',' << crawl->y << ")\n";
 				path.push_back({ crawl->x, crawl->y });
-				App::getInstance()->renderScenesWithoutPresent();
 				SDL_Rect rect = { world.getRect().x + crawl->x * BLOCK_W, crawl->y * BLOCK_H, BLOCK_W, BLOCK_H };
-				SDL_RenderFillRect(renderer, &rect);
+				path_rects.push_back(rect);
+				
+				App::getInstance()->renderScenesWithoutPresent();
+				SDL_SetRenderDrawColor(renderer, c_finish.r, c_finish.g, c_finish.b, 128);
+				for (const SDL_Rect& pr : path_rects) {
+					SDL_RenderFillRect(renderer, &pr);
+				}
 				App::getInstance()->drawPresent();
 
 				App::getInstance()->delayHighRes(search_delay);
@@ -169,6 +181,15 @@ std::vector<SDL_Point> PathFinder::a_star(World& world, const int& search_speed)
 			}
 		}
 	}
+	
+	// Final render to show all visited nodes
+	App::getInstance()->renderScenesWithoutPresent();
+	SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, 128);
+	for (const SDL_Rect& marker : search_markers) {
+		SDL_RenderFillRect(renderer, &marker);
+	}
+	App::getInstance()->drawPresent();
+	
 	std::cout << "No path found\n";
 	return {};
 }
