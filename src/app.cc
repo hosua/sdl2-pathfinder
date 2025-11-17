@@ -4,6 +4,10 @@
 #include <iostream>
 #include <random>
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include "app.hh"
 #include "defs.hh"
 // Gets a global vector of SDL_Events, which are polled in App::mainLoop().
@@ -49,36 +53,59 @@ App::~App(){
 }
 
 bool App::initSDL(){
-	if (SDL_Init(SDL_INIT_EVERYTHING) > 0){
+	if (SDL_Init(SDL_INIT_VIDEO) > 0){
 		std::cerr << "SDL_Init Error: " << SDL_GetError() << '\n';
 		return false;
 	} 
 
+#ifdef __EMSCRIPTEN__
+	_window = SDL_CreateWindow("Game Engine",
+			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+			WINDOW_W, WINDOW_H, 
+			SDL_WINDOW_SHOWN);
+#else
 	_window = SDL_CreateWindow("Game Engine",
 			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 			WINDOW_W, WINDOW_H, 
 			0);
 
 	SDL_SetWindowBordered(_window, SDL_FALSE); // remove window border
+#endif
 
 	if (!_window){
 		std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << '\n';
 		return false;
 	}
 
+#ifdef __EMSCRIPTEN__
+	_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
+	if (!_renderer){
+		std::cerr << "SDL_CreateRenderer Error (accelerated): " << SDL_GetError() << '\n';
+		_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_SOFTWARE);
+		if (!_renderer){
+			std::cerr << "SDL_CreateRenderer Error (software): " << SDL_GetError() << '\n';
+			return false;
+		}
+	}
+#else
 	_renderer = SDL_CreateRenderer(_window, -1, 0);
 	if (!_renderer){
 		std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << '\n';
 		return false;
 	}
+#endif
 
 	SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND); // but will it blend?
 
+#ifndef __EMSCRIPTEN__
 	_surface = SDL_GetWindowSurface(_window);
 	if (!_surface){
 		std::cerr << "SDL_GetWindowSurface Error: " << SDL_GetError() << '\n';
 		return false;
 	}
+#else
+	_surface = nullptr; // Not needed for Emscripten
+#endif
 
 	TTF_Init();
 
@@ -115,6 +142,41 @@ void App::mainLoop(){
 		SDL_Delay(17);
 	}
 }
+
+#ifdef __EMSCRIPTEN__
+void App::mainLoopIteration(){
+	if (!isRunning()){
+		emscripten_cancel_main_loop();
+		return;
+	}
+	
+	SceneManager::renderScenes();
+	
+	const SDL_Point& mouse_pos = getMousePos();
+	SDL_Event event;
+	while (SDL_PollEvent(&event)){
+		getFrameEvents().push_back(event);
+		switch(event.type){
+			case SDL_KEYDOWN:
+				{
+					if (event.key.keysym.scancode == SDL_SCANCODE_M)
+						fprintf(stdout, "Mouse position: (%i,%i)\n", mouse_pos.x, mouse_pos.y);
+					if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE){
+						std::cout << "ESC was pressed\n";
+						setRunning(false);
+					}
+					break;
+				}
+			default:
+				break;
+		}
+	}
+
+	SceneManager::handleAllSceneInputs();
+
+	getFrameEvents().clear();
+}
+#endif
 
 int App::getRandInt(int min, int max) const {
 	std::uniform_int_distribution<> distr(min, max);

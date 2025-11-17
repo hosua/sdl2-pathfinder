@@ -1,4 +1,8 @@
+#ifdef __EMSCRIPTEN__
+#define FONT_OPENSANS "/assets/fonts/OpenSans-Regular.ttf"
+#else
 #define FONT_OPENSANS "./assets/fonts/OpenSans-Regular.ttf"
+#endif
 
 #include <SDL2/SDL_ttf.h>
 

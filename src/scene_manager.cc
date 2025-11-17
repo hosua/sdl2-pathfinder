@@ -54,15 +54,38 @@ void SceneManager::renderScenes(){
 	drawPresent();
 };
 
+void SceneManager::renderScenesWithoutPresent(){
+	SDL_Point mouse_pos;
+	SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
+	drawClear();
+	for (auto itr = _scenes.begin(); itr != _scenes.end(); ++itr){
+		IScene* scene = itr->get();
+		if (scene->isRendering()){
+			scene->render();
+		}
+	}
+}
+
 void SceneManager::drawClear(const SDL_Color& color) const {
 	SDL_Renderer* renderer = app->getRenderer();
+	if (!renderer) {
+		std::cerr << "Error: renderer is null in drawClear\n";
+		return;
+	}
 	const SDL_Color& c = color;
 	SDL_SetRenderDrawColor(renderer, c.r, c.g, c.b, c.a);
-	SDL_RenderClear(renderer);
+	int result = SDL_RenderClear(renderer);
+	if (result != 0) {
+		std::cerr << "SDL_RenderClear Error: " << SDL_GetError() << '\n';
+	}
 }
 
 void SceneManager::drawPresent() const {
 	SDL_Renderer* renderer = app->getRenderer();
+	if (!renderer) {
+		std::cerr << "Error: renderer is null in drawPresent\n";
+		return;
+	}
 	SDL_RenderPresent(renderer);
 }
 

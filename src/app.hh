@@ -28,6 +28,9 @@ class App : public SceneManager {
 		void delayHighRes(float ms);
 
 		void mainLoop();
+#ifdef __EMSCRIPTEN__
+		void mainLoopIteration();
+#endif
 
 		void handleInputs();
 		bool initSDL();

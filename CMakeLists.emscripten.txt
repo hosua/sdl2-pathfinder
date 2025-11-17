@@ -1,0 +1,77 @@
+# Emscripten CMake configuration
+cmake_minimum_required(VERSION 3.10)
+
+# Project information
+project(grid-game LANGUAGES CXX)
+
+# Set C++ standard to C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Generate compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Emscripten-specific settings
+set(CMAKE_SYSTEM_NAME Emscripten)
+set(CMAKE_CXX_COMPILER em++)
+set(CMAKE_C_COMPILER emcc)
+
+# Define source files
+set(SOURCES
+	src/app.cc
+	src/color.cc
+	src/font.cc
+    src/main.cc
+	src/scene.cc
+	src/scene_manager.cc
+	src/scenes/game.cc
+	src/scenes/main_menu.cc
+	src/scenes/settings.cc
+	src/pathfinder/dfs.cc
+	src/pathfinder/bfs.cc
+	src/pathfinder/astar.cc
+	src/pathfinder/world.cc
+	src/ui/widget_manager.cc
+	src/ui/widget.cc
+	src/ui/text.cc
+	src/ui/button.cc
+	src/ui/spinner.cc
+)
+
+# Add the executable (will be compiled to WASM)
+add_executable(grid-game ${SOURCES})
+
+# Include directories
+target_include_directories(grid-game PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+# Emscripten-specific compile options
+target_compile_options(grid-game PRIVATE
+    -Wall
+    -Wextra
+    -Wpedantic
+    -sUSE_SDL=2
+    -sUSE_SDL_TTF=2
+    -sUSE_SDL_IMAGE=2
+    -sUSE_SDL_MIXER=2
+    -sALLOW_MEMORY_GROWTH=1
+    -sASYNCIFY
+    -O2
+)
+
+# Emscripten-specific link options
+target_link_options(grid-game PRIVATE
+    -sUSE_SDL=2
+    -sUSE_SDL_TTF=2
+    -sUSE_SDL_IMAGE=2
+    -sUSE_SDL_MIXER=2
+    -sALLOW_MEMORY_GROWTH=1
+    -sASYNCIFY
+            -sEXPORTED_RUNTIME_METHODS='["ccall","cwrap","FS","print","printErr"]'
+    -sINITIAL_MEMORY=67108864
+    --preload-file ${CMAKE_CURRENT_BINARY_DIR}/assets@/assets
+    --shell-file ${CMAKE_CURRENT_BINARY_DIR}/shell.html
+    -O2
+)
+
