@@ -68,7 +68,7 @@ target_link_options(grid-game PRIVATE
     -sUSE_SDL_MIXER=2
     -sALLOW_MEMORY_GROWTH=1
     -sASYNCIFY
-            -sEXPORTED_RUNTIME_METHODS='["ccall","cwrap","FS","print","printErr"]'
+    -sEXPORTED_RUNTIME_METHODS=ccall,cwrap,FS,print,printErr
     -sINITIAL_MEMORY=67108864
     --preload-file ${CMAKE_CURRENT_BINARY_DIR}/assets@/assets
     --shell-file ${CMAKE_CURRENT_BINARY_DIR}/shell.html

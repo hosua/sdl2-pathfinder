@@ -79,13 +79,9 @@ std::vector<SDL_Point> PathFinder::dfs(World &world, const int &search_speed) {
           (world.getEntityAt(nx, ny) == ENT_NONE ||
            world.getEntityAt(nx, ny) == ENT_END) &&
           vis.find(pr) == vis.end()) {
-        DFSNode new_node;
-        new_node.pos.x = nx;
-        new_node.pos.y = ny;
-        new_node.path = curr_path;
-        SDL_Point new_point;
-        new_point.x = nx;
-        new_point.y = ny;
+
+        SDL_Point new_point = {.x = nx, .y = ny};
+        DFSNode new_node = {.pos = new_point, .path = curr_path};
         new_node.path.push_back(new_point);
         st.push(new_node);
         vis.insert(pr);
