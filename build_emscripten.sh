@@ -65,7 +65,7 @@ if ! command -v emcc &> /dev/null; then
 fi
 
 # Create build directory
-BUILD_DIR="build_emscripten"
+BUILD_DIR="build"
 mkdir -p "$BUILD_DIR"
 
 # Copy shell.html to build directory (will be used by CMake)
