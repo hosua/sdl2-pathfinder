@@ -16,7 +16,7 @@ if [ -f ~/.profile ]; then
 fi
 
 # Try to find and add Emscripten to PATH if not already there
-if ! command -v emcc &> /dev/null; then
+if ! command -v emcc &>/dev/null; then
     # Common Emscripten installation paths
     for emsdk_path in \
         "/usr/lib/emsdk/upstream/emscripten" \
@@ -28,7 +28,7 @@ if ! command -v emcc &> /dev/null; then
             break
         fi
     done
-    
+
     # Also try to source emsdk_env.sh if available
     for emsdk_env in \
         "$HOME/emsdk/emsdk_env.sh" \
@@ -36,7 +36,7 @@ if ! command -v emcc &> /dev/null; then
         "/opt/emsdk/emsdk_env.sh" \
         "/usr/lib/emsdk/emsdk_env.sh"; do
         if [ -f "$emsdk_env" ]; then
-            source "$emsdk_env" > /dev/null 2>&1
+            source "$emsdk_env" >/dev/null 2>&1
             break
         fi
     done
@@ -58,7 +58,7 @@ cleanup() {
 trap cleanup EXIT
 
 # Check if emcc is available
-if ! command -v emcc &> /dev/null; then
+if ! command -v emcc &>/dev/null; then
     echo "Error: emcc not found. Please install Emscripten SDK."
     echo "Visit: https://emscripten.org/docs/getting_started/downloads.html"
     exit 1
@@ -94,6 +94,8 @@ emcmake cmake ..
 # Build
 emmake make -j$(nproc)
 
+cp index.html "${BUILD_DIR}/"
+
 # The output will be grid-game.js, grid-game.wasm, and grid-game.html
 echo ""
 echo "Build complete! Output files:"
@@ -104,4 +106,3 @@ echo ""
 echo "To test locally, you can use a simple HTTP server:"
 echo "  cd $BUILD_DIR && python3 -m http.server 8000"
 echo "Then open http://localhost:8000/grid-game.html in your browser"
-
