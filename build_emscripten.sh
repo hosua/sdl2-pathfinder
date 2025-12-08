@@ -70,6 +70,7 @@ mkdir -p "$BUILD_DIR"
 
 # Copy shell.html to build directory (will be used by CMake)
 cp shell.html "$BUILD_DIR/"
+cp index.html "$BUILD_DIR/"
 
 # Copy assets directory to build directory
 if [ -d "assets" ]; then
