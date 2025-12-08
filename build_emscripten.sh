@@ -95,8 +95,6 @@ emcmake cmake ..
 # Build
 emmake make -j$(nproc)
 
-cp index.html "${BUILD_DIR}/"
-
 # The output will be grid-game.js, grid-game.wasm, and grid-game.html
 echo ""
 echo "Build complete! Output files:"
