@@ -14,13 +14,3 @@ make
 then run with `./grid-game`.
 
 If you want, you can also just run the `./run.sh` script to compile and run everything.
-
-
-# Features to be Implemented
-- [ ] Modular UI Widgets (not sure how many I want to do yet)
-- [X] Robust scene management (still needs work)
-- [X] A* search 
-- [ ] Loading/Saving Maps
-- [ ] Add compilation instructions/binary for Windows
-- [ ] Multithreading support so that input isn't blocked whilst pathfinding
-- [X] World randomizer (need to add more/better randomization techniques)
